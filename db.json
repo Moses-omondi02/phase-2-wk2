@@ -1,0 +1,13 @@
+{
+  "goals": [
+    {
+      "id": "7",
+      "name": "Holiday Gifts",
+      "targetAmount": 1000,
+      "savedAmount": 200,
+      "category": "Shopping",
+      "deadline": "2024-08-10",
+      "createdAt": "2024-07-01"
+    }
+  ]
+}
