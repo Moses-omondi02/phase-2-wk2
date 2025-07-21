@@ -1,0 +1,3 @@
+base = "phase-2/react-project/my-project" 
+  command = "npm run build"
+  publish = "phase-2/react-project/my-project/dist"
