@@ -1,48 +1,29 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = [
-  'https://my-week-2.netlify.app', 
-  'http://localhost:3000',         
-  'https://www.your-custom-domain.com' 
+  'https://my-week-2.netlify.app',
+  'http://localhost:3000'
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  if (!origin) return next();
-  
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Vary', 'Origin'); 
-  
-    if (req.method === 'OPTIONS') {
-      return res.status(204).end();
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-  }
-  
-  next();
-});
+  },
+  credentials: true
+}));
 
-app.get('/api/data', (req, res) => {
-  res.json({ message: 'This is protected CORS data' });
-});
-
-app.get('/', (req, res) => {
-  res.json({
-    status: 'Server is running',
-    cors: {
-      allowedOrigins,
-      documentation: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS'
-    }
-  });
+// Your routes
+app.get('/goals', (req, res) => {
+  res.json([{id: 1, name: "Sample goal"}]);
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('Allowed origins:', allowedOrigins);
 });

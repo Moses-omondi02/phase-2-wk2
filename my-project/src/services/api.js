@@ -1,19 +1,18 @@
+
 const API_URL = import.meta.env.PROD
-  ? 'https://goals-backend-yg6y.onrender.com' 
-  : 'http://localhost:3001';             
+  ? 'https://your-render-backend-url.onrender.com'
+  : 'http://localhost:3001';
 
-
-fetch(`${API_URL}/goals`)
-  .then(response => response.json())
-
-export const createGoal = async (goal) => {
-  const response = await fetch(`${API_URL}/goals`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(goal)
-  });
-  return await response.json();
-};
+async function fetchGoals() {
+  try {
+    const response = await fetch(`${API_URL}/goals`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching goals:', error);
+    throw error;
+  }
+}
 
 export const fetchGoals = async () => {
   const response = await fetch(`${API_URL}/goals`);
