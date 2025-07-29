@@ -1,68 +1,46 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
-const path = require('path'); 
+const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3001; 
+const PORT = process.env.PORT || 3001;
 
 
 const allowedOrigins = [
-  'http://localhost:3000',
-  'my-week-2.netlify.app' 
+  'https://my-week-2.netlify.app', 
+  'http://localhost:3000'          
 ];
 
 app.use(cors({
-  origin: allowedOrigins
+  origin: function (origin, callback) {
+   
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `Origin ${origin} not allowed by CORS`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true
 }));
+
 app.use(express.json());
 
+const dbPath = path.join(__dirname, 'db.json');
+let db = JSON.parse(fs.readFileSync(dbPath));
 
 app.get('/', (req, res) => {
   res.json({ 
     status: 'API is running',
-    availableEndpoints: [
-      'GET /goals',
-      'POST /goals',
-      'PATCH /goals/:id'
-    ]
+    endpoints: ['/goals']
   });
 });
 
-
-const dbPath = path.join(__dirname, 'db.json');
-let db = require(dbPath);
-
-app.get('/goals', (req, res) => res.json(db.goals));
-
-app.post('/goals', (req, res) => {
-  const newGoal = { id: Date.now(), ...req.body };
-  db.goals.push(newGoal);
-  saveDb();
-  res.status(201).json(newGoal);
+app.get('/goals', (req, res) => {
+  res.json(db.goals);
 });
 
-app.patch('/goals/:id', (req, res) => {
-  const goal = db.goals.find(g => g.id == req.params.id);
-  if (!goal) return res.status(404).json({ error: 'Goal not found' }); 
-    
-  Object.assign(goal, req.body);
-  saveDb();
-  res.json(goal);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
 });
-app.get('/', (req, res) => {
-  res.json({ 
-    status: 'API is working',
-    endpoints: ['/goals', '/goals/:id'] 
-  });
-});
-
-function saveDb() {
-  try {
-    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
-  } catch (err) {
-    console.error('Error saving database:', err);
-    throw err;
-  }
-}
-
-app.listen(PORT, () => console.log(`Backend running on http://localhost:${PORT}`));
