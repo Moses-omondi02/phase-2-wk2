@@ -1,5 +1,5 @@
 const API_URL = import.meta.env.PROD
-  ? 'https://your-backend.onrender.com' 
+  ? 'https://goals-backend-yg6y.onrender.com' 
   : 'http://localhost:3001';             
 
 
