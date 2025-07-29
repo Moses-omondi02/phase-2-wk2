@@ -1,4 +1,10 @@
-const API_URL = 'http://localhost:3001';
+const API_URL = import.meta.env.PROD
+  ? 'https://your-backend.onrender.com' 
+  : 'http://localhost:3001';             
+
+
+fetch(`${API_URL}/goals`)
+  .then(response => response.json())
 
 export const createGoal = async (goal) => {
   const response = await fetch(`${API_URL}/goals`, {
