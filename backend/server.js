@@ -1,46 +1,48 @@
 const express = require('express');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-
 const allowedOrigins = [
   'https://my-week-2.netlify.app', 
-  'http://localhost:3000'          
+  'http://localhost:3000',         
+  'https://www.your-custom-domain.com' 
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-   
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `Origin ${origin} not allowed by CORS`;
-      return callback(new Error(msg), false);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  if (!origin) return next();
+  
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin'); 
+  
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end();
     }
-    return callback(null, true);
-  },
-  credentials: true
-}));
-
-app.use(express.json());
-
-const dbPath = path.join(__dirname, 'db.json');
-let db = JSON.parse(fs.readFileSync(dbPath));
-
-app.get('/', (req, res) => {
-  res.json({ 
-    status: 'API is running',
-    endpoints: ['/goals']
-  });
+  }
+  
+  next();
 });
 
-app.get('/goals', (req, res) => {
-  res.json(db.goals);
+app.get('/api/data', (req, res) => {
+  res.json({ message: 'This is protected CORS data' });
+});
+
+app.get('/', (req, res) => {
+  res.json({
+    status: 'Server is running',
+    cors: {
+      allowedOrigins,
+      documentation: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS'
+    }
+  });
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Allowed origins: ${allowedOrigins.join(', ')}`);
+  console.log('Allowed origins:', allowedOrigins);
 });
