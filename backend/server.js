@@ -49,6 +49,12 @@ app.patch('/goals/:id', (req, res) => {
   saveDb();
   res.json(goal);
 });
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'API is working',
+    endpoints: ['/goals', '/goals/:id'] 
+  });
+});
 
 function saveDb() {
   try {
